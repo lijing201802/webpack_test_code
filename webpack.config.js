@@ -72,6 +72,13 @@ module.exports = {
             filename: 'static/images/[hash:10][ext][query]'
           }
         },
+        {
+          test: /.(ttf|woff2?|mp3|mp4|avi)$/,
+          type: 'asset/resource',//不处理，直接输出的资源
+          generator: {
+            filename: "static/media/[hash:8][ext][query]",
+          },
+        }
     ],
   },
   // 插件
