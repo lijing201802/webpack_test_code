@@ -1,21 +1,29 @@
+/**
+ * 1. npm init -y 初始化package.json后，
+ * 2. 在项目根目录下新建文件：webpack.config.js
+ */
+
 // Node.js的核心模块，专门用来处理文件路径
 const path = require("path");
+const ESLintWebpackPlugin = require("eslint-webpack-plugin")
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   // 入口
   // 相对路径和绝对路径都行
-  entry: "./src/main.js",
+  entry: "./src/main.js", //相对运行代码命令的地方
   // 输出
   output: {
     // path: 文件输出目录，必须是绝对路径
     // path.resolve()方法返回一个绝对路径
     // __dirname nodejs的变量，代表当前文件的文件夹目录绝对路径
-    path: path.resolve(__dirname, "dist"),//绝对路径
+    // path: path.resolve(__dirname, "../dist"),//绝对路径
+    path: undefined, // 开发模式没有输出，不需要指定输出目录
     // filename: 入口文件打包输出文件名 （其他文件默认在path下）
     filename: "static/js/main.js",
     // 自动清空上次打包的内容
     // 原理：在打包前，将 path整个目录内容清空，再进行打包
-    clean: true,
+    // clean: true,//开发模式没有输出，不需要清空输出结果
   },
   // 加载器
   module: {
@@ -78,11 +86,44 @@ module.exports = {
           generator: {
             filename: "static/media/[hash:8][ext][query]",
           },
-        }
+        },
+        {
+          test: /\.js$/,
+          exclude: /node_modules/, // 排除node_modules代码不编译
+          use: {
+            loader: "babel-loader",
+            // options: ["@babel/preset-env"] //写在这里，或者写在外面的babel.config.js
+          }
+          
+        },
     ],
   },
   // 插件
-  plugins: [],
+  plugins: [
+    //npm i eslint-webpack-plugin eslint -D
+    new ESLintWebpackPlugin({
+      // 指定检查文件的根目录
+      context: path.resolve(__dirname, "../src"),
+    }),
+    // 处理html资源。作用是自动引入打包资源。
+    // 当前是在public下的index.html中手动引入的打包后dist下的 main.js
+    // 以后打包后的可能不叫main.js，而且可能会生成多个js，一个一个手动引入很麻烦。
+    // npm i html-webpack-plugin -D
+    new HtmlWebpackPlugin({
+      // 以 public/index.html 为模板创建文件（创建新的index.html，会在dist里）
+      // 新的html文件有两个特点：1. 内容和源文件一致 2. 自动引入打包生成的js等资源
+      // 要记得注释掉原先publit/index.html中引入dist下js的代码
+      template: path.resolve(__dirname, "../public/index.html"),
+    }),
+  ],
+
+  // 开发服务器：不会输出资源，在内存中编译打包
+  // 安装：npm i webpack-dev-server -D 运行：npx webpack serve
+  devServer: {
+    host: "localhost", // 启动服务器域名
+    port: "3000", // 启动服务器端口号
+    open: true, // 是否自动打开浏览器
+  },
   // 模式
   mode: "development", // 开发模式
 };

@@ -7,5 +7,9 @@ import './less/index.less'
 import './sass/index.sass'
 import './sass/index.scss'
 import './stylus/index.styl'
-console.log(count(2, 1)); 
-console.log(sum(1, 2, 3, 4));
+
+// var result = count(2, 1);//会触发ESLINT no-var规则报错。
+let result = count(2,1)
+console.log(result); 
+let result2 = sum(1,2,3,4);
+console.log(result2);
