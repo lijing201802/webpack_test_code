@@ -4,10 +4,13 @@
  *    指定基本结构，entry, output, module, plugins,devServer,mode
  *    entry: "./src/main.js",
  *    output: 指定其中的path, filename
+ *    mode: production 生产模式会自动开启js，html(需要安装HtmlWebpackPlugin参会生成html)压缩。
  * 3. 下载依赖：
  *    3.1 安装webpack: npm i webpack webpack-cli -D
  *    3.2 安装css-loader: npm i css-loader style-loader -D  
  *                  其中style-loder可以不用安装，后面会被MiniCssExtractPlugin（生成专门的css文件，link引入）代替
+ *        安装mini-css-extract-plugin npm i mini-css-extract-plugin -D 不用这个插件的的时候css文件是被打包到js中的，当 js 文件加载时，会创建一个 style 标签来生成样式。
+ *        这个插件用来用来生成单独的Css文件，后续因为有HtmlWebpackPlugin，就会自动通过link标签加载
  *    3.3 安装需要使用的预处理器（一般一个就行）
  *      less-loader: npm i less-loader -D
  *      sass-loder, scss-loader: npm i less-loader -D
@@ -19,9 +22,21 @@
  *      npm i html-webpack-plugin -D
  *    3.6 安装开发服务器
  *      npm i webpack-dev-server -D
+ *    3.7 安装css兼容性加载器postcss-loader
+ *      npm i postcss-loader postcss postcss-preset-env -D
+ *    3.8 安装css压缩工具CssMinimizerPlugin
+ *      npm i css-minimizer-webpack-plugin -D
 
  * 4. 配置
- *    4.1 配置css-loader （在module的rules里）
+ *    4.1 配置MiniCssExtractPlugin和css-loader
+ *        4.1.1 配置MiniCssExtractPlugin.loader
+ *          1）先引入，const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+ *          2）在module的rules里配置
+ *          3）在plugin里指定css文件的目录和名字
+ *            new MiniCssExtractPlugin({
+                filename: "static/css/main.css",
+              }),
+ *        4.1.2 配置css-loader（在module的rules里）
  *    4.2 配置预处理器 （在module的rules里）
  *    4.3 配置图片资源 （在module的rules里）
  *       {//过去在 Webpack4 时，我们处理图片资源通过 file-loader（直接输出原来格式） 和 url-loader（转成base64） 进行处理
@@ -73,7 +88,20 @@
         }),
         4.6.3 如果之前在public/index.html中有引入dist下的main.js，现在可以删除
       4.7 配置开发服务器，devServer和module、plugin等同级   
- *      
+      4.8 配置运行指令。在package.json中
+        "scripts": {
+          "start": "npm run dev",
+          "dev": "npx webpack serve --config ./config/webpack.dev.js",
+          "build": "npx webpack --config ./config/webpack.prod.js"
+        }
+      4.9 配置post-css处理css兼容性
+        4.9.1 在loader的rules中，css-loader 还有每个css预处理器中都要配置postcss-loader,一般用智能预设postcss-preset-env
+        4.9.2 在 package.json 文件中添加 browserslist 来控制样式的兼容性做到什么程度
+            "browserslist": ["last 2 version", "> 1%", "not dead"]
+ *    4.10 配置CssMinimizerPlugin（css压缩工具）
+        4.10.1 引入const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+        4.10.2 在plugins中配置 new CssMinimizerPlugin(),
+
  *      
  */
 
