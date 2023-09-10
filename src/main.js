@@ -13,3 +13,9 @@ let result = count(2,1)
 console.log(result); 
 let result2 = sum(1,2,3,4);
 console.log(result2);
+
+if (module.hot) {
+    // 判断是否支持热模块替换功能
+    module.hot.accept("./js/count");
+    module.hot.accept("./js/sum");
+  }
